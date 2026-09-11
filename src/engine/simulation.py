@@ -222,9 +222,9 @@ class SimulationEngine:
                     self.world.intervention_log.append(intervention)
                     interventions.append(intervention)
                     await self.broadcast({
-                        "type": "director_intervention",
                         "turn": self.world.turn,
                         **intervention,
+                        "type": "director_intervention",  # 字面量置于展开后，避免被干预类型覆盖
                     })
                     ie = Event(turn=self.world.turn, actor="导演",
                                action_type="intervention",
