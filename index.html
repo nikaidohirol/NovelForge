@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NovelForge — 二次元轻小说创作工作台</title>
+  </head>
+  <body style="margin: 0;">
+    <!-- 同步读取主题，避免加载页与主界面背景色闪跳 -->
+    <script>
+      (function() {
+        var bgMap = { light: '#FDF6F9', galaxy: '#17122B', paper: '#FDF6F9', dark: '#1E1A2E', anime: '#FDF2F8' };
+        var theme = 'anime';
+        try {
+          var raw = localStorage.getItem('novelforge-theme');
+          if (raw) {
+            var state = JSON.parse(raw).state || {};
+            var candidate = state.resolvedTheme || state.theme;
+            if (candidate === 'night') candidate = 'dark'; // 兼容旧版
+            if (Object.prototype.hasOwnProperty.call(bgMap, candidate)) {
+              theme = candidate;
+            }
+          }
+        } catch(e) {}
+
+        var bg = bgMap[theme] || bgMap.anime;
+
+        // 提前给 html 注入主题 class，确保所有全局 CSS 变量立即生效
+        document.documentElement.classList.remove('light', 'dark', 'galaxy', 'paper', 'anime');
+        document.documentElement.classList.add(theme);
+
+        document.body.style.backgroundColor = bg;
+        /* 将背景色注入 CSS 变量供启动加载器引用 */
+        document.documentElement.style.setProperty('--loader-bg', bg);
+      })();
+    </script>
+    <div id="root">
+      <style>
+        .nf-initial-loader {
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+          height: 100vh;
+          width: 100vw;
+          background-color: var(--loader-bg, #FDF2F8);
+          font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+          user-select: none;
+        }
+
+        .nf-core-container {
+          position: relative;
+          width: 80px;
+          height: 80px;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          margin-bottom: 24px;
+        }
+
+        .nf-ring {
+          position: absolute;
+          width: 100%;
+          height: 100%;
+          border-radius: 50%;
+          border: 2px solid transparent;
+          border-top-color: rgba(255, 126, 157, 0.85);
+          border-bottom-color: rgba(181, 123, 255, 0.85);
+          animation: nf-spin 2s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
+        }
+
+        .nf-ring-inner {
+          position: absolute;
+          width: 65%;
+          height: 65%;
+          border-radius: 50%;
+          border: 2px solid transparent;
+          border-left-color: rgba(255, 183, 197, 0.9);
+          border-right-color: rgba(147, 197, 253, 0.85);
+          animation: nf-spin-reverse 2.5s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
+        }
+
+        .nf-core {
+          width: 14px;
+          height: 14px;
+          background: #FF7E9D;
+          border-radius: 50%;
+          box-shadow: 0 0 20px rgba(255, 126, 157, 0.5), 0 0 40px rgba(181, 123, 255, 0.35);
+          animation: nf-pulse 2s ease-in-out infinite;
+        }
+
+        .nf-text {
+          font-size: 13px;
+          font-weight: 600;
+          letter-spacing: 4px;
+          text-transform: uppercase;
+          background: linear-gradient(90deg, #FF7E9D, #B57BFF, #93C5FD, #FF7E9D);
+          background-size: 200% auto;
+          color: transparent;
+          -webkit-background-clip: text;
+          background-clip: text;
+          animation: nf-text-shine 3s linear infinite;
+        }
+
+        @keyframes nf-spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+
+        @keyframes nf-spin-reverse {
+          0% { transform: rotate(360deg); }
+          100% { transform: rotate(0deg); }
+        }
+
+        @keyframes nf-pulse {
+          0%, 100% { transform: scale(0.8); opacity: 0.8; box-shadow: 0 0 15px rgba(255, 126, 157, 0.4); }
+          50% { transform: scale(1.3); opacity: 1; box-shadow: 0 0 30px rgba(255, 126, 157, 0.6), 0 0 50px rgba(181, 123, 255, 0.4); }
+        }
+
+        @keyframes nf-text-shine {
+          to { background-position: 200% center; }
+        }
+      </style>
+      <div class="nf-initial-loader">
+        <div class="nf-core-container">
+          <div class="nf-ring"></div>
+          <div class="nf-ring-inner"></div>
+          <div class="nf-core"></div>
+        </div>
+        <div class="nf-text">NovelForge 初始化中</div>
+      </div>
+    </div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

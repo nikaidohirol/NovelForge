@@ -1,0 +1,64 @@
+﻿import fs from 'node:fs'
+import os from 'node:os'
+import path from 'node:path'
+
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+
+type IpcHandler = (...args: unknown[]) => Promise<unknown>
+
+const mocks = vi.hoisted(() => ({
+  handlers: new Map<string, IpcHandler>(),
+}))
+
+vi.mock('electron', () => ({
+  ipcMain: {
+    handle: vi.fn((channel: string, handler: IpcHandler) => {
+      mocks.handlers.set(channel, handler)
+    }),
+  },
+}))
+
+let novelforgeHome = ''
+
+function handler(channel: string): IpcHandler {
+  const registered = mocks.handlers.get(channel)
+  if (!registered) throw new Error(`Missing IPC handler: ${channel}`)
+  return registered
+}
+
+beforeEach(async () => {
+  vi.resetModules()
+  mocks.handlers.clear()
+  novelforgeHome = fs.mkdtempSync(path.join(os.tmpdir(), 'novelforge-config-corrupt-'))
+  process.env.NOVELFORGE_HOME_OVERRIDE = novelforgeHome
+  const { registerConfigController } = await import('../config-controller')
+  registerConfigController()
+})
+
+afterEach(() => {
+  delete process.env.NOVELFORGE_HOME_OVERRIDE
+  fs.rmSync(novelforgeHome, { recursive: true, force: true })
+})
+
+describe('global configuration corruption boundary', () => {
+  it('refuses to overwrite an existing malformed config file', async () => {
+    const configPath = path.join(novelforgeHome, 'config.json')
+    const originalBytes = Buffer.from('{BROKEN_CONFIG_SECRET_MARKER', 'utf8')
+    fs.writeFileSync(configPath, originalBytes)
+
+    await expect(handler('config:set')({}, { theme: 'light' })).resolves.toMatchObject({
+      success: false,
+      error: expect.any(String),
+    })
+    expect(fs.readFileSync(configPath)).toEqual(originalBytes)
+  })
+
+  it('creates a missing config from defaults', async () => {
+    await expect(handler('config:set')({}, { theme: 'light' })).resolves.toEqual({ success: true })
+
+    expect(JSON.parse(fs.readFileSync(path.join(novelforgeHome, 'config.json'), 'utf8'))).toMatchObject({
+      theme: 'light',
+      defaultModelId: null,
+    })
+  })
+})
