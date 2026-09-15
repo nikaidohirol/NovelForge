@@ -7,7 +7,13 @@
  * 这里把 navigator.language 钉死为 zh-CN，使测试结果与运行机器无关。
  */
 
-const nav = globalThis.navigator as { language?: string; languages?: string[] } | undefined
+/** 允许覆写的 navigator 子集（Node 运行时的 navigator 为只读访问器，需 defineProperty 覆写） */
+type PinnedNavigator = {
+  language?: string
+  languages?: string[]
+}
+
+const nav = (globalThis as { navigator?: unknown }).navigator as PinnedNavigator | undefined
 
 if (nav) {
   Object.defineProperty(nav, 'language', { value: 'zh-CN', configurable: true })
