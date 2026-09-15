@@ -1,4 +1,4 @@
-﻿import { describe, expect, it, vi } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import {
   GITHUB_LATEST_RELEASE_API,
@@ -31,5 +31,7 @@ describe('GitHub latest release update backend', () => {
     expect(fetcher).toHaveBeenCalledWith(GITHUB_LATEST_RELEASE_API, expect.objectContaining({
       headers: expect.objectContaining({ Accept: 'application/vnd.github+json' }),
     }))
+    // 守卫：更新通道 API 必须指向本仓库，防止退回无效的组织名
+    expect(GITHUB_LATEST_RELEASE_API).toBe('https://api.github.com/repos/nikaidohirol/NovelForge/releases/latest')
   })
 })

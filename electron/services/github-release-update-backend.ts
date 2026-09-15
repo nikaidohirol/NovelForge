@@ -1,6 +1,6 @@
 import type { UpdateBackend } from './update-service'
 
-export const GITHUB_LATEST_RELEASE_API = 'https://api.github.com/repos/novelforge/NovelForge/releases/latest'
+export const GITHUB_LATEST_RELEASE_API = 'https://api.github.com/repos/nikaidohirol/NovelForge/releases/latest'
 export const GITHUB_LATEST_RELEASE_PAGE = 'https://github.com/nikaidohirol/NovelForge/releases/latest'
 
 interface ReleaseResponse {
