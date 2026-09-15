@@ -1,9 +1,8 @@
 # Bundled font notices
 
 The desktop application bundles the following unmodified font files. They are
-distributed under the SIL Open Font License, Version 1.1, independently of the
-application's GPL-3.0 license. The accompanying upstream license text for each
-font family is stored in [`licenses/`](licenses/).
+distributed under the SIL Open Font License, Version 1.1. The accompanying
+upstream license text for each font family is stored in [`licenses/`](licenses/).
 
 ## Inter 4.001
 

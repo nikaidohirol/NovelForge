@@ -75,7 +75,3 @@ npm run build
 | 存储 | better-sqlite3（结构化）+ LanceDB（向量知识库） |
 | 编辑器 | Monaco Editor + CodeMirror 6 |
 | 测试 | Vitest（浏览器模式 Playwright 驱动） |
-
-## 许可证
-
-本项目基于 [GPL-3.0](./LICENSE) 许可证发布。

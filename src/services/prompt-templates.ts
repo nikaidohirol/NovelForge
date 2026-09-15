@@ -3,8 +3,6 @@
  *
  * 包含全流程创作所需的全部提示词模板
  * 支持三级覆盖：内置 → 全局自定义 → 项目级覆盖
- *
- * 架构生成 Prompt 来源于 AI_NovelGenerator 项目（经专业优化）
  */
 
 import type { ProjectSessionContext } from '../shared/ipc-channels'
