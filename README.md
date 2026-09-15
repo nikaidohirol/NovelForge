@@ -1,5 +1,7 @@
 # NovelForge — 二次元轻小说创作工作台
 
+[![CI](https://github.com/nikaidohirol/NovelForge/actions/workflows/ci.yml/badge.svg)](https://github.com/nikaidohirol/NovelForge/actions/workflows/ci.yml)
+
 NovelForge 是一款面向二次元轻小说作者的本地优先桌面创作工具：从世界观、角色卡到章节创作、互动模拟与审稿，覆盖轻小说创作全流程。
 
 ## 核心特性
@@ -46,6 +48,10 @@ NovelForge 是一款面向二次元轻小说作者的本地优先桌面创作工
 
 ## 界面
 
+| 亮色主题 | 暗色主题 |
+| --- | --- |
+| ![小说配置 · 亮色](docs/screenshots/novel-config-light.png) | ![小说配置 · 暗色](docs/screenshots/novel-config-dark.png) |
+
 - 四主题（默认 / 暗色 / 纸质 / 樱粉二次元），中英双语。
 - Markdown 编辑器（Monaco / CodeMirror）与富文本预览。
 - 目录蓝图、知识库、角色状态、审稿报告一站式管理。
@@ -56,7 +62,7 @@ NovelForge 是一款面向二次元轻小说作者的本地优先桌面创作工
 # 安装依赖（Node >= 20）
 npm install
 
-# 启动开发环境（Vite + Electron）
+# 启动开发环境（Vite + Electron，自动准备 Electron ABI）
 npm run dev
 
 # 类型检查 / 单元测试 / 构建
@@ -64,6 +70,15 @@ npm run typecheck
 npm test
 npm run build
 ```
+
+### better-sqlite3 原生模块 ABI 切换
+
+better-sqlite3 是原生模块，同一份编译产物只能被一种 Node 运行时加载：
+单元测试跑在本机 Node 上，而 Electron 运行时要求 Electron ABI。项目脚本负责自动切换：
+
+- `npm run dev` / `npm run rebuild:electron`：为 Electron 重新编译并验证（dev 通过 predev 钩子自动执行）
+- `npm run prepare:native-node`：为本机 Node 重新编译并验证——**跑 `npm test` 前需要先执行**
+- 直接跑数据库相关测试报 `NODE_MODULE_VERSION` 不匹配，就是 ABI 停在了另一个运行时上，用上面两个脚本切过去即可
 
 ## 技术栈
 

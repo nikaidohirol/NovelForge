@@ -1,4 +1,4 @@
-﻿import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 const mocks = vi.hoisted(() => {
   const calls: string[] = []
@@ -62,7 +62,7 @@ vi.mock('../i18n', () => ({ mainT: () => 'NovelForge' }))
 vi.mock('../controllers/update-controller', () => ({ registerUpdateController: vi.fn() }))
 vi.mock('../services/electron-updater-adapter', () => ({ createElectronUpdaterBackend: vi.fn() }))
 vi.mock('../services/github-release-update-backend', () => ({
-  GITHUB_LATEST_RELEASE_PAGE: 'https://github.com/novelforge/NovelForge/releases/latest',
+  GITHUB_LATEST_RELEASE_PAGE: 'https://github.com/nikaidohirol/NovelForge/releases/latest',
   createGitHubReleaseUpdateBackend: mocks.createGitHubReleaseUpdateBackend,
 }))
 vi.mock('../services/update-preferences-store', () => ({
@@ -151,6 +151,6 @@ describe('interactive Electron startup', () => {
       createBackend: mocks.createGitHubReleaseUpdateBackend,
     })
     await options.openRelease()
-    expect(mocks.openExternal).toHaveBeenCalledWith('https://github.com/novelforge/NovelForge/releases/latest')
+    expect(mocks.openExternal).toHaveBeenCalledWith('https://github.com/nikaidohirol/NovelForge/releases/latest')
   })
 })

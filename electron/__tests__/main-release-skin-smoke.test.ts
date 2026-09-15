@@ -1,4 +1,4 @@
-﻿import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 const smokeToken = 'a'.repeat(64)
 
@@ -51,7 +51,7 @@ vi.mock('../i18n', () => ({ mainT: () => 'NovelForge' }))
 vi.mock('../controllers/update-controller', () => ({ registerUpdateController: vi.fn() }))
 vi.mock('../services/electron-updater-adapter', () => ({ createElectronUpdaterBackend: vi.fn() }))
 vi.mock('../services/github-release-update-backend', () => ({
-  GITHUB_LATEST_RELEASE_PAGE: 'https://github.com/novelforge/NovelForge/releases/latest',
+  GITHUB_LATEST_RELEASE_PAGE: 'https://github.com/nikaidohirol/NovelForge/releases/latest',
   createGitHubReleaseUpdateBackend: vi.fn(),
 }))
 vi.mock('../services/update-preferences-store', () => ({

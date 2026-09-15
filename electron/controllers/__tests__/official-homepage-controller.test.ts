@@ -1,4 +1,4 @@
-﻿import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 type IpcHandler = (...args: unknown[]) => Promise<unknown>
 
@@ -20,7 +20,7 @@ vi.mock('electron', () => ({
 
 import { registerOfficialHomepageController } from '../official-homepage-controller'
 
-const OFFICIAL_HOMEPAGE_URL = 'https://github.com/novelforge/NovelForge'
+const OFFICIAL_HOMEPAGE_URL = 'https://github.com/nikaidohirol/NovelForge'
 
 function handler(channel: string): IpcHandler {
   const registered = mocks.handlers.get(channel)
@@ -40,7 +40,7 @@ describe('official homepage controller', () => {
 
     await expect(handler('official-homepage:open')(
       {},
-      'https://github.com/novelforge/NovelForge/issues/25',
+      'https://github.com/nikaidohirol/NovelForge/issues/25',
     )).resolves.toEqual({ success: true })
 
     expect(mocks.openExternal).toHaveBeenCalledTimes(1)

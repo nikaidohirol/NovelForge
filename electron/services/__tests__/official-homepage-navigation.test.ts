@@ -19,8 +19,8 @@ describe('official homepage navigation policy', () => {
   it.each([
     `${OFFICIAL_HOMEPAGE_URL}/`,
     `${OFFICIAL_HOMEPAGE_URL}/issues/25`,
-    'https://github.com/novelforge/NovelForge.evil.example',
-    'https://example.com/?next=https://github.com/novelforge/NovelForge',
+    'https://github.com/nikaidohirol/NovelForge.evil.example',
+    'https://example.com/?next=https://github.com/nikaidohirol/NovelForge',
   ])('denies an untrusted popup URL without passing it to the system browser: %s', (url) => {
     const openExternal = vi.fn().mockResolvedValue(undefined)
     const handler = createOfficialHomepageWindowOpenHandler({ openExternal })
