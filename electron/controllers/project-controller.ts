@@ -115,6 +115,15 @@ function narrativeThreadSettingsCoreUpdate(
     : { narrativeThreadDormantChapterThreshold: novelConfig.narrativeThreadDormantChapterThreshold }
 }
 
+/** 每卷章数为可选字段；仅在显式提供时提交（0 = 关闭分卷）。 */
+function chaptersPerVolumeCoreUpdate(
+  novelConfig: ProjectData['novelConfig'],
+): Pick<Partial<ProjectCoreData>, 'chaptersPerVolume'> {
+  return novelConfig.chaptersPerVolume === undefined
+    ? {}
+    : { chaptersPerVolume: novelConfig.chaptersPerVolume }
+}
+
 /** 项目配置读写必须显式携带当前会话租约，路径本身不是授权。 */
 function assertRequiredProjectSession(
   projectId: string,
@@ -492,6 +501,7 @@ export function registerProjectController() {
             targetAudience: updatedCoreData.targetAudience,
             totalChapters: updatedCoreData.totalChapters,
             wordsPerChapter: updatedCoreData.wordsPerChapter,
+            chaptersPerVolume: updatedCoreData.chaptersPerVolume,
             creativeStrategy: updatedCoreData.creativeStrategy,
             narrativeThreadDormantChapterThreshold: updatedCoreData.narrativeThreadDormantChapterThreshold,
             plotStructure: updatedCoreData.plotStructure as 'three_act' | 'heros_journey' | 'save_the_cat' | 'kishotenketsu' | 'multi_thread' | 'freeform',
@@ -609,6 +619,7 @@ export function registerProjectController() {
           targetAudience: data.novelConfig.targetAudience,
           totalChapters: data.novelConfig.totalChapters,
           wordsPerChapter: data.novelConfig.wordsPerChapter,
+          ...chaptersPerVolumeCoreUpdate(data.novelConfig),
           ...creativeStrategyCoreUpdate(data.novelConfig),
           ...narrativeThreadSettingsCoreUpdate(data.novelConfig),
           plotStructure: data.novelConfig.plotStructure,
@@ -677,6 +688,7 @@ export function registerProjectController() {
           targetAudience: data.novelConfig.targetAudience,
           totalChapters: data.novelConfig.totalChapters,
           wordsPerChapter: data.novelConfig.wordsPerChapter,
+          ...chaptersPerVolumeCoreUpdate(data.novelConfig),
           ...creativeStrategyCoreUpdate(data.novelConfig),
           ...narrativeThreadSettingsCoreUpdate(data.novelConfig),
           plotStructure: data.novelConfig.plotStructure,

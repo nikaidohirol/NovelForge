@@ -73,6 +73,7 @@ function createTables(db: BetterSqlite3.Database, importSourceSecret?: Buffer) {
       target_audience TEXT DEFAULT '',            -- 目标受众
       total_chapters INTEGER DEFAULT 100,         -- 预计总章数
       words_per_chapter INTEGER DEFAULT 3000,     -- 单章基准字数
+      chapters_per_volume INTEGER NOT NULL DEFAULT 0, -- 每卷章数；0 = 不分卷（轻小说分卷组织）
       writing_language TEXT NOT NULL DEFAULT 'zh-CN', -- 项目级写作语言
       creative_strategy TEXT NOT NULL DEFAULT 'auto', -- 项目级创作策略
       narrative_thread_dormant_threshold INTEGER NOT NULL DEFAULT 3,
@@ -1037,6 +1038,10 @@ function createTables(db: BetterSqlite3.Database, importSourceSecret?: Buffer) {
   if (!projectCoreColumns.has('narrative_thread_dormant_threshold')) {
     db.exec('ALTER TABLE project_core ADD COLUMN narrative_thread_dormant_threshold INTEGER NOT NULL DEFAULT 3')
     projectCoreColumns.add('narrative_thread_dormant_threshold')
+  }
+  if (!projectCoreColumns.has('chapters_per_volume')) {
+    db.exec('ALTER TABLE project_core ADD COLUMN chapters_per_volume INTEGER NOT NULL DEFAULT 0')
+    projectCoreColumns.add('chapters_per_volume')
   }
 
   const characterStateColumns = new Set(

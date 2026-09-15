@@ -1,4 +1,4 @@
-﻿/**
+/**
  * IPC 频道定义 — 渲染进程与主进程的类型安全通信契约
  * 所有 IPC 调用都通过此文件定义频道名和参数/返回值类型
  */
@@ -508,6 +508,8 @@ export interface NovelConfig {
   targetAudience: string
   totalChapters: number
   wordsPerChapter: number
+  /** 轻小说分卷：每卷章数；0/缺省 = 不分卷，章节按 ceil(章号/每卷章数) 归卷。 */
+  chaptersPerVolume?: number
   plotStructure: 'three_act' | 'heros_journey' | 'save_the_cat' | 'kishotenketsu' | 'multi_thread' | 'freeform'
   narrativePOV: 'third_limited' | 'first_person' | 'third_omniscient' | 'multi_pov'
   coreOutline: string

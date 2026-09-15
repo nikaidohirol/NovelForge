@@ -238,7 +238,7 @@ function NovelConfigEditorSession({ projectKey }: { projectKey: string }) {
                 </NativeSelect>
               </Field>
             </div>
-            <div className="grid grid-cols-4 gap-4 mt-4">
+            <div className="grid grid-cols-3 gap-4">
               <Field label={text('故事结构', 'Story structure')} tipItems={[
                 '三幕结构：经典的“建置→对抗→高潮”，适合大多数网文类型',
                 '英雄之旅：神话学十二阶段，适合冒险/成长类，强调内在蜕变',
@@ -281,6 +281,29 @@ function NovelConfigEditorSession({ projectKey }: { projectKey: string }) {
                   <option value="multi_pov">{text('多视角轮换', 'Multiple POV')}</option>
                 </NativeSelect>
               </Field>
+              <Field label={text('每卷章数', 'Chapters per volume')} tipItems={[
+                '轻小说分卷：按 ceil(章号/每卷章数) 自动归卷，正文章节列表按卷分组',
+                '设为 0 表示不分卷（纯章节模式，类网文）',
+                '轻小说常见设置为 5–12 章/卷',
+              ].map((item, index) => text(item, [
+                'Light-novel volumes: chapters are grouped by ceil(chapter number ÷ chapters per volume) in the manuscript list',
+                'Set to 0 to disable volumes (flat chapter mode)',
+                'Common light-novel settings are 5–12 chapters per volume',
+              ][index]))}>
+                <Input
+                  type="number"
+                  value={config.chaptersPerVolume ?? 0}
+                  onChange={(e) => update('chaptersPerVolume', (e.target.value === '' ? 0 : parseInt(e.target.value)) as number)}
+                  onBlur={() => {
+                    const v = Number(config.chaptersPerVolume ?? 0)
+                    if (!Number.isSafeInteger(v) || v < 0) update('chaptersPerVolume', 0)
+                  }}
+                  placeholder="0"
+                  min={0}
+                />
+              </Field>
+            </div>
+            <div className="grid grid-cols-2 gap-4 mt-4">
               <Field label={text('总章数', 'Total chapters')}>
                 <Input
                   type="number"

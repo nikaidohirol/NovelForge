@@ -12,6 +12,7 @@ import {
     type WritingLanguage,
 } from '../../src/shared/writing-language'
 import { resolveNarrativeThreadDormantThreshold } from '../../src/shared/narrative-thread'
+import { resolveChaptersPerVolume } from '../../src/shared/volume'
 
 /** project_core 表行类型 */
 export interface ProjectCoreRow {
@@ -22,6 +23,7 @@ export interface ProjectCoreRow {
     target_audience: string
     total_chapters: number
     words_per_chapter: number
+    chapters_per_volume: number
     writing_language: string
     creative_strategy: string
     narrative_thread_dormant_threshold: number
@@ -51,6 +53,7 @@ export interface ProjectCoreData {
     targetAudience: string
     totalChapters: number
     wordsPerChapter: number
+    chaptersPerVolume: number
     writingLanguage: WritingLanguage
     creativeStrategy: CreativeStrategy
     narrativeThreadDormantChapterThreshold: number
@@ -98,6 +101,7 @@ function rowToData(row: ProjectCoreRow): ProjectCoreData {
         targetAudience: row.target_audience,
         totalChapters: row.total_chapters,
         wordsPerChapter: row.words_per_chapter,
+        chaptersPerVolume: resolveChaptersPerVolume(row.chapters_per_volume),
         writingLanguage: resolveWritingLanguage(row.writing_language),
         creativeStrategy: (
             CREATIVE_STRATEGIES.includes(row.creative_strategy as CreativeStrategy)
@@ -167,6 +171,7 @@ export class ProjectCoreRepository {
             targetAudience: 'target_audience',
             totalChapters: 'total_chapters',
             wordsPerChapter: 'words_per_chapter',
+            chaptersPerVolume: 'chapters_per_volume',
             writingLanguage: 'writing_language',
             creativeStrategy: 'creative_strategy',
             narrativeThreadDormantChapterThreshold: 'narrative_thread_dormant_threshold',
@@ -194,7 +199,9 @@ export class ProjectCoreRepository {
                 const value = (data as Record<string, unknown>)[camel]
                 values.push(camel === 'narrativeThreadDormantChapterThreshold'
                     ? resolveNarrativeThreadDormantThreshold(value)
-                    : value)
+                    : camel === 'chaptersPerVolume'
+                        ? resolveChaptersPerVolume(value)
+                        : value)
             }
         }
 

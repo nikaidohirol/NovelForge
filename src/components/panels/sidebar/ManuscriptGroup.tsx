@@ -1,4 +1,4 @@
-﻿/**
+/**
  * ManuscriptGroup — 正文章节折叠组（已定稿章节列表）
  */
 
@@ -24,6 +24,7 @@ import {
   confirmLegacyKnowledgeAbsentAndContinue,
   deleteFinalizedChapter,
 } from './finalized-chapter-deletion'
+import { resolveChaptersPerVolume, volumeEnabled, volumeGroupLabel, volumeOfChapter } from '../../../shared/volume'
 
 type ManuscriptFileNode = FileNode & { chapterTitle?: string }
 
@@ -171,6 +172,23 @@ export default function ManuscriptGroup({ files, projectPath }: { files: Manuscr
 
   // 只显示正文章节（过滤掉旧的 _notes 文件）
   const chapterFiles = files.filter(f => !f.name.includes('_notes'))
+
+  // 轻小说分卷：每卷章数 ≥1 时按卷分组展示
+  const perVolume = resolveChaptersPerVolume(currentProject?.novelConfig.chaptersPerVolume)
+  const volumeGrouped = volumeEnabled(perVolume)
+  const volumeGroups = volumeGrouped
+    ? [...chapterFiles
+        .reduce((acc, f) => {
+          const match = f.name.replace(/\.[^.]+$/, '').match(/^chapter_(\d+)$/)
+          const volume = match ? volumeOfChapter(Number(match[1]), perVolume) : 0
+          const bucket = acc.get(volume)
+          if (bucket) bucket.push(f)
+          else acc.set(volume, [f])
+          return acc
+        }, new Map<number, ManuscriptFileNode[]>())
+        .entries()]
+      .sort(([a], [b]) => a - b)
+    : []
 
   const fetchIncompleteDeletions = useCallback(async (projectSession: ProjectSessionContext) => {
     const requestId = ++deletionLoadSequence.current
@@ -339,6 +357,17 @@ export default function ManuscriptGroup({ files, projectPath }: { files: Manuscr
             <div className="text-xs py-1" style={{ paddingLeft: 34, color: 'var(--color-text-muted)' }}>
               {text('暂无定稿章节', 'No finalized chapters')}
             </div>
+          ) : volumeGrouped ? (
+            volumeGroups.map(([volume, groupFiles]) => (
+              <VolumeSection
+                key={volume}
+                volume={volume}
+                files={groupFiles}
+                getDisplay={getDisplay}
+                onOpen={openChapterFile}
+                onDelete={deleteManuscriptChapter}
+              />
+            ))
           ) : (
             chapterFiles.map(f => {
               const displayName = getDisplay(f)
@@ -397,6 +426,102 @@ export default function ManuscriptGroup({ files, projectPath }: { files: Manuscr
           )}
         </div>
       )}
+    </div>
+  )
+}
+
+/**
+ * 卷分组折叠段 — 轻小说分卷开启时的正文章节二级分组。
+ * 卷头标签仅展示卷号（如「第2卷」），章节范围由卷内条目自解释。
+ */
+function VolumeSection({
+  volume,
+  files,
+  getDisplay,
+  onOpen,
+  onDelete,
+}: {
+  volume: number
+  files: ManuscriptFileNode[]
+  getDisplay: (f: ManuscriptFileNode) => string
+  onOpen: (path: string, displayName: string) => void
+  onDelete: (filePath: string, displayName: string, chapterNumber: number | undefined) => void
+}) {
+  const [open, setOpen] = useState(true)
+  const text = useLocaleStore(s => s.text)
+
+  return (
+    <div>
+      <div
+        className="tree-item gap-1.5 cursor-pointer select-none"
+        style={{ paddingLeft: 22 }}
+        onClick={() => setOpen(v => !v)}
+      >
+        {open
+          ? <ChevronDown size={11} style={{ color: 'var(--color-text-muted)', flexShrink: 0 }} />
+          : <ChevronRight size={11} style={{ color: 'var(--color-text-muted)', flexShrink: 0 }} />
+        }
+        <span className="text-xs font-medium" style={{ color: 'var(--color-text-secondary)' }}>
+          {volumeGroupLabel(volume)}
+        </span>
+        <span className="ml-auto text-[0.7rem]" style={{ color: 'var(--color-text-muted)' }}>
+          {text(`${files.length} 章`, `${files.length} ch`)}
+        </span>
+      </div>
+      {open && files.map(f => {
+        const displayName = getDisplay(f)
+        const chapterMatch = f.name.replace(/\.[^.]+$/, '').match(/^chapter_(\d+)$/)
+        const chapterNumber = chapterMatch ? Number(chapterMatch[1]) : undefined
+        return (
+          <div
+            key={f.path}
+            className="tree-item gap-1.5 cursor-pointer"
+            style={{ paddingLeft: 40 }}
+            onClick={() => onOpen(f.path, displayName)}
+            onContextMenu={e => showSidebarMenu([
+              {
+                key: 'open',
+                label: text('打开章节', 'Open chapter'),
+                icon: <FolderOpen size={13} />,
+                onClick: () => onOpen(f.path, displayName),
+              },
+              { key: 'div1', type: 'divider' as const },
+              {
+                key: 'copy-path',
+                label: text('复制文件路径', 'Copy file path'),
+                icon: <Copy size={13} />,
+                onClick: () => navigator.clipboard.writeText(f.path).catch(() => { }),
+              },
+              { key: 'div2', type: 'divider' as const },
+              {
+                key: 'delete',
+                label: text('删除正文', 'Delete manuscript'),
+                icon: <Trash2 size={13} />,
+                danger: true,
+                onClick: () => onDelete(f.path, displayName, chapterNumber),
+              },
+            ], e)}
+            title={text(`点击打开 — ${displayName}`, `Open — ${displayName}`)}
+          >
+            <FileText size={11} style={{ color: 'var(--color-text-muted)', flexShrink: 0 }} />
+            <span className="text-sm truncate flex-1" style={{ color: 'var(--color-text-secondary)' }}>
+              {displayName}
+            </span>
+            <button
+              type="button"
+              className="opacity-70 hover:opacity-100 rounded p-0.5"
+              title={text('删除正文', 'Delete manuscript')}
+              onClick={(e) => {
+                e.stopPropagation()
+                onDelete(f.path, displayName, chapterNumber)
+              }}
+              style={{ color: 'var(--color-text-muted)' }}
+            >
+              <Trash2 size={10} />
+            </button>
+          </div>
+        )
+      })}
     </div>
   )
 }
