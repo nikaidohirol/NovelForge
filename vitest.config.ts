@@ -14,6 +14,9 @@ export default defineConfig({
           name: 'windows-fs-security',
           include: [heavyFsTest],
           fileParallelism: false,
+          // 这些用例会真实拉起 PowerShell 子进程做句柄校验，
+          // CI 冷启动（含 Defender 扫描）远慢于本地，放宽到 30s 防偶发超时。
+          testTimeout: 30_000,
           setupFiles: ['./vitest.setup.ts'],
         },
       },
