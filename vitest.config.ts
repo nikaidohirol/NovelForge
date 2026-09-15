@@ -14,6 +14,7 @@ export default defineConfig({
           name: 'windows-fs-security',
           include: [heavyFsTest],
           fileParallelism: false,
+          setupFiles: ['./vitest.setup.ts'],
         },
       },
       {
@@ -21,6 +22,7 @@ export default defineConfig({
           name: 'main',
           exclude: [...configDefaults.exclude, heavyFsTest],
           maxWorkers: mainMaxWorkers,
+          setupFiles: ['./vitest.setup.ts'],
         },
       },
     ],
