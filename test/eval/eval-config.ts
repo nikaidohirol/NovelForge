@@ -21,7 +21,8 @@ import { existsSync, readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import type { EvalLiveConfig } from './eval-types'
 
-const ENV_KEYS = ['NOVELFORGE_EVAL_BASE_URL', 'NOVELFORGE_EVAL_API_KEY', 'NOVELFORGE_EVAL_MODEL'] as const
+/** live 配置的环境变量键名 */
+type EvalEnvKey = 'NOVELFORGE_EVAL_BASE_URL' | 'NOVELFORGE_EVAL_API_KEY' | 'NOVELFORGE_EVAL_MODEL'
 
 /** 读取 .env.eval.local（行式 KEY=VALUE，忽略注释与空行） */
 function parseEnvFile(filePath: string): Record<string, string> {
@@ -57,7 +58,7 @@ export function readEvalLiveConfig(
   envFile: string = resolve(process.cwd(), '.env.eval.local'),
 ): EvalLiveConfig | null {
   const fileVars = parseEnvFile(envFile)
-  const pick = (key: typeof ENV_KEYS[number]): string | undefined =>
+  const pick = (key: EvalEnvKey): string | undefined =>
     env[key]?.trim() || fileVars[key]?.trim()
   const baseUrl = pick('NOVELFORGE_EVAL_BASE_URL')
   const apiKey = pick('NOVELFORGE_EVAL_API_KEY')
