@@ -21,7 +21,7 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src", "electron", "test/eval", "vitest.config.ts", "vitest.browser.config.ts", "vitest.setup.ts"],
+  "include": ["src", "electron", "test/eval", "vitest.config.ts", "vitest.browser.config.ts", "vitest.eval.config.ts", "vitest.setup.ts"],
   "exclude": ["src/stories"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

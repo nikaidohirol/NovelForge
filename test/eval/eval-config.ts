@@ -48,6 +48,22 @@ export function isLiveGateEnabled(env: Record<string, string | undefined> = proc
   return env.NOVELFORGE_EVAL_LIVE === '1'
 }
 
+/** 可选的单价配置（美元/百万 token），未配置或非法时缺省为 undefined */
+export function readPriceUsdPerMTok(env: Record<string, string | undefined> = process.env): {
+  input?: number
+  output?: number
+} {
+  const parse = (raw: string | undefined): number | undefined => {
+    if (!raw?.trim()) return undefined
+    const num = Number(raw)
+    return Number.isFinite(num) && num >= 0 ? num : undefined
+  }
+  return {
+    input: parse(env.NOVELFORGE_EVAL_PRICE_INPUT_USD_PER_MTOK),
+    output: parse(env.NOVELFORGE_EVAL_PRICE_OUTPUT_USD_PER_MTOK),
+  }
+}
+
 /**
  * 读取 live 配置；任一项缺失返回 null（评测层据此整体跳过）
  * @param env 环境变量（默认 process.env，测试可注入）

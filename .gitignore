@@ -44,6 +44,9 @@ vitest-report.json
 .release-gate*.txt
 /.vitest-attachments/
 
+# 评测原始逐例记录（报告 md 入库，transcript 不入库）
+eval-reports/transcripts/
+
 # 本地工具索引与会话
 .codegraph/
 .superpowers/

@@ -13,6 +13,8 @@ import type { EvalLiveConfig, UsageRecord } from '../eval-types'
 const EVAL_TEMPERATURE = 0.2
 
 export interface EvalClient {
+  /** 连接配置（key 已含在内部，报告层不得输出） */
+  config: EvalLiveConfig
   generateFn: LLMGenerateFn
   /** 每次成功调用的 token 用量记录 */
   usageSink: UsageRecord[]
@@ -67,6 +69,7 @@ export function createOpenAICompatClient(config: EvalLiveConfig): EvalClient {
   }
 
   return {
+    config,
     generateFn,
     usageSink,
     requestCount: () => requests,
