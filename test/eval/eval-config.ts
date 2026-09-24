@@ -3,18 +3,22 @@
  *
  * 配置来源（优先级从高到低）：
  * 1. 环境变量：NOVELFORGE_EVAL_BASE_URL / NOVELFORGE_EVAL_API_KEY / NOVELFORGE_EVAL_MODEL
+ *    （可选单价键 NOVELFORGE_EVAL_PRICE_*_USD_PER_MTOK 同样适用）
  * 2. 项目根目录的 .env.eval.local（KEY=VALUE 行式格式，已被 .gitignore 的 .env.*.local 规则忽略）
  *
- * 门禁：只有 NOVELFORGE_EVAL_LIVE=1 且三项配置齐全时才会执行真实模型评测，
+ * 门禁：只有环境变量 NOVELFORGE_EVAL_LIVE=1 且三项配置齐全时才会执行真实模型评测，
  * 否则整套 live 用例被跳过——`npm test` 永远不会发起计费调用。
+ * 注意：LIVE 开关刻意只认环境变量，写进 .env.eval.local 无效（防意外计费）。
  *
  * PowerShell 运行方式：
+ *   $env:NOVELFORGE_EVAL_LIVE="1"
+ *   npm run eval:live          # 连接配置读 .env.eval.local
+ * 或全部改用环境变量：
  *   $env:NOVELFORGE_EVAL_LIVE="1"
  *   $env:NOVELFORGE_EVAL_BASE_URL="https://<端点>/v1"
  *   $env:NOVELFORGE_EVAL_API_KEY="sk-..."
  *   $env:NOVELFORGE_EVAL_MODEL="<模型名>"
  *   npm run eval:live
- * 或创建 .env.eval.local 后直接 `npm run eval:live`。
  */
 
 import { existsSync, readFileSync } from 'node:fs'
@@ -49,18 +53,23 @@ export function isLiveGateEnabled(env: Record<string, string | undefined> = proc
 }
 
 /** 可选的单价配置（美元/百万 token），未配置或非法时缺省为 undefined */
-export function readPriceUsdPerMTok(env: Record<string, string | undefined> = process.env): {
+export function readPriceUsdPerMTok(
+  env: Record<string, string | undefined> = process.env,
+  envFile: string = resolve(process.cwd(), '.env.eval.local'),
+): {
   input?: number
   output?: number
 } {
+  const fileVars = parseEnvFile(envFile)
+  const pick = (key: string): string | undefined => env[key]?.trim() || fileVars[key]?.trim()
   const parse = (raw: string | undefined): number | undefined => {
     if (!raw?.trim()) return undefined
     const num = Number(raw)
     return Number.isFinite(num) && num >= 0 ? num : undefined
   }
   return {
-    input: parse(env.NOVELFORGE_EVAL_PRICE_INPUT_USD_PER_MTOK),
-    output: parse(env.NOVELFORGE_EVAL_PRICE_OUTPUT_USD_PER_MTOK),
+    input: parse(pick('NOVELFORGE_EVAL_PRICE_INPUT_USD_PER_MTOK')),
+    output: parse(pick('NOVELFORGE_EVAL_PRICE_OUTPUT_USD_PER_MTOK')),
   }
 }
 
