@@ -1,0 +1,126 @@
+[
+  {
+    "id": "tool-live-01",
+    "category": "tool_call",
+    "layer": "live",
+    "title": "单只读工具问答：模型应调用工具后基于结果回答",
+    "tools": [
+      {
+        "name": "list_chapters",
+        "description": "列出小说全部章节及其定稿状态",
+        "result": "第1章 已定稿；第2章 已定稿；第3章 草稿"
+      }
+    ],
+    "user": "请查看当前章节的定稿情况，然后告诉我还有哪几章没定稿。",
+    "expect": {
+      "toolCalls": [{ "name": "list_chapters" }],
+      "matchMode": "subset",
+      "requireToolCall": true,
+      "maxRounds": 4
+    },
+    "budget": { "rounds": 6, "timeoutMs": 120000 }
+  },
+  {
+    "id": "tool-live-02",
+    "category": "tool_call",
+    "layer": "live",
+    "title": "双工具合成：模型应依次调用两个工具后汇总回答",
+    "tools": [
+      {
+        "name": "list_chapters",
+        "description": "列出小说全部章节及其定稿状态",
+        "result": "第1章 已定稿；第2章 已定稿；第3章 草稿"
+      },
+      {
+        "name": "read_blueprint",
+        "description": "读取指定章节的大纲蓝图",
+        "result": "第2章蓝图：作者指导为空"
+      }
+    ],
+    "user": "先列出章节定稿状态，再读取第 2 章蓝图，最后把两边的信息合在一起回答。",
+    "expect": {
+      "toolCalls": [{ "name": "list_chapters" }, { "name": "read_blueprint" }],
+      "matchMode": "subset",
+      "requireToolCall": true,
+      "maxRounds": 6
+    },
+    "budget": { "rounds": 8, "timeoutMs": 120000 }
+  },
+  {
+    "id": "tool-live-03",
+    "category": "tool_call",
+    "layer": "live",
+    "title": "无工具问题：模型应直接回答而不发起任何工具调用",
+    "user": "用一句话解释轻小说里「吐槽」是什么意思。",
+    "expect": {
+      "requireToolCall": false,
+      "maxRounds": 1
+    },
+    "budget": { "rounds": 3, "timeoutMs": 120000 }
+  },
+  {
+    "id": "tool-live-04",
+    "category": "tool_call",
+    "layer": "live",
+    "title": "写工具确认门：写操作应触发确认并被批准执行",
+    "tools": [
+      {
+        "name": "save_note",
+        "description": "把一条备注保存到项目备忘",
+        "result": "备注已保存",
+        "requiresConfirmation": true
+      }
+    ],
+    "user": "请把「主角在第三章拿到樱花灯」这条信息记到备注里。",
+    "expect": {
+      "toolCalls": [{ "name": "save_note" }],
+      "matchMode": "subset",
+      "requireToolCall": true,
+      "maxRounds": 4
+    },
+    "budget": { "rounds": 6, "timeoutMs": 120000 }
+  },
+  {
+    "id": "tool-live-05",
+    "category": "tool_call",
+    "layer": "live",
+    "title": "参数保真：章节号应正确传入工具参数",
+    "tools": [
+      {
+        "name": "read_blueprint",
+        "description": "读取指定编号章节的大纲蓝图",
+        "result": "第 2 章蓝图：雨夜车站的诀别"
+      }
+    ],
+    "user": "读取第 2 章的蓝图。",
+    "expect": {
+      "toolCalls": [{ "name": "read_blueprint", "arguments": { "chapter_number": 2 } }],
+      "matchMode": "subset",
+      "requireToolCall": true,
+      "maxRounds": 4
+    },
+    "budget": { "rounds": 6, "timeoutMs": 120000 }
+  },
+  {
+    "id": "tool-live-06",
+    "category": "tool_call",
+    "layer": "live",
+    "title": "结果引用：最终回答应包含工具返回里的关键物件",
+    "tools": [
+      {
+        "name": "status_probe",
+        "description": "读取当前场景状态",
+        "result": "当前状态：樱花灯已挂上走廊，蜡烛还剩两根。"
+      }
+    ],
+    "user": "读取当前状态，并告诉我走廊上现在挂着什么。",
+    "expect": {
+      "toolCalls": [{ "name": "status_probe" }],
+      "matchMode": "subset",
+      "requireToolCall": true,
+      "textContains": ["樱花灯"],
+      "maxRounds": 4
+    },
+    "budget": { "rounds": 6, "timeoutMs": 120000 }
+  }
+]

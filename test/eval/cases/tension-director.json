@@ -1,0 +1,47 @@
+[
+  {
+    "id": "tension-off-01",
+    "category": "tension_director",
+    "layer": "offline",
+    "title": "导演含噪 snake_case JSON：归一化后张力与干预判定正确",
+    "offlineOutput": "评估完成。\n{\"relation_shift\": 7, \"goal_conflict\": 8, \"secret_pressure\": 5, \"novelty\": 6, \"need_intervention\": true, \"event_type\": \"plot_twist\", \"event_description\": \"旧识突然登门\"}",
+    "expect": {
+      "tension": { "min": 6.5, "max": 7.0 },
+      "needIntervention": true,
+      "eventType": "plot_twist"
+    }
+  },
+  {
+    "id": "tension-off-02",
+    "category": "tension_director",
+    "layer": "offline",
+    "title": "导演异常字段：字符串、负数与超界值被防御式钳制",
+    "offlineOutput": "{\"relation_shift\": \"9\", \"goal_conflict\": -3, \"novelty\": 99, \"needIntervention\": false}",
+    "expect": {
+      "tension": { "min": 5.5, "max": 6.0 },
+      "needIntervention": false
+    }
+  },
+  {
+    "id": "tension-live-01",
+    "category": "tension_director",
+    "layer": "live",
+    "title": "高压场景：导演应输出 JSON 并判定需要干预",
+    "user": "以导演身份评估以下场景并输出 JSON（字段：relation_shift、goal_conflict、secret_pressure、novelty、need_intervention，need_intervention 为 true 时附 event_type 与 event_description）。场景：诀别当夜，主角的真名被迫当众揭晓，追兵烧毁了唯一撤离的桥。",
+    "expect": {
+      "tension": { "min": 5, "max": 10 },
+      "needIntervention": true
+    }
+  },
+  {
+    "id": "tension-live-02",
+    "category": "tension_director",
+    "layer": "live",
+    "title": "日常场景：导演应判定无需干预",
+    "user": "以导演身份评估以下场景并输出 JSON（字段：relation_shift、goal_conflict、secret_pressure、novelty、need_intervention）。场景：两人在放学后的社办整理旧杂志，聊起周末要一起看的电影。",
+    "expect": {
+      "tension": { "min": 0, "max": 4 },
+      "needIntervention": false
+    }
+  }
+]

@@ -1,0 +1,122 @@
+[
+  {
+    "id": "parse-xml-01",
+    "category": "parse_tolerance",
+    "layer": "offline",
+    "title": "标准 XML 标签包裹的 JSON 工具调用，前后散文正确分离",
+    "tools": [
+      {
+        "name": "read_blueprint",
+        "description": "读取指定章节的蓝图",
+        "result": "第 2 章蓝图内容"
+      }
+    ],
+    "offlineOutput": "我先查看第 2 章的蓝图。\n<tool_call>\n{\"name\":\"read_blueprint\",\"arguments\":{\"chapter_number\":2}}\n</tool_call>",
+    "expect": {
+      "toolCalls": [{ "name": "read_blueprint", "arguments": { "chapter_number": 2 } }],
+      "textParts": ["我先查看第 2 章的蓝图。"]
+    }
+  },
+  {
+    "id": "parse-xml-02",
+    "category": "parse_tolerance",
+    "layer": "offline",
+    "title": "连续两个 XML 工具调用按顺序解析，无散文残留",
+    "tools": [
+      { "name": "list_chapters", "description": "列出全部章节", "result": "章节列表" },
+      { "name": "read_blueprint", "description": "读取指定章节的蓝图", "result": "蓝图内容" }
+    ],
+    "offlineOutput": "<tool_call>{\"name\":\"list_chapters\",\"arguments\":{}}</tool_call><tool_call>{\"name\":\"read_blueprint\",\"arguments\":{\"chapter_number\":1}}</tool_call>",
+    "expect": {
+      "toolCalls": [
+        { "name": "list_chapters", "arguments": {} },
+        { "name": "read_blueprint", "arguments": { "chapter_number": 1 } }
+      ],
+      "textParts": []
+    }
+  },
+  {
+    "id": "parse-xml-03",
+    "category": "parse_tolerance",
+    "layer": "offline",
+    "title": "tool_call 标签内 JSON 前混入散文时仍可容错提取",
+    "tools": [
+      { "name": "read_blueprint", "description": "读取指定章节的蓝图", "result": "蓝图内容" }
+    ],
+    "offlineOutput": "<tool_call>\n好的，调用读取。\n{\"name\":\"read_blueprint\",\"arguments\":{\"chapter_number\":3}}\n</tool_call>",
+    "expect": {
+      "toolCalls": [{ "name": "read_blueprint", "arguments": { "chapter_number": 3 } }],
+      "textParts": []
+    }
+  },
+  {
+    "id": "parse-dsml-01",
+    "category": "parse_tolerance",
+    "layer": "offline",
+    "title": "SiliconFlow DSML 包装的调用可解析且协议块不泄漏为散文",
+    "tools": [
+      { "name": "list_chapters", "description": "列出全部章节", "result": "章节列表" }
+    ],
+    "offlineOutput": "<｜DSML｜tool_call>\n{\"name\":\"list_chapters\",\"arguments\":{}}\n</｜DSML｜tool_call>\n已为你读取章节列表。",
+    "expect": {
+      "toolCalls": [{ "name": "list_chapters", "arguments": {} }],
+      "textParts": ["已为你读取章节列表。"]
+    }
+  },
+  {
+    "id": "parse-tagged-01",
+    "category": "parse_tolerance",
+    "layer": "offline",
+    "title": "tool_call 内嵌 name/arguments 子标签的供应商格式可解析",
+    "tools": [
+      { "name": "read_blueprint", "description": "读取指定章节的蓝图", "result": "蓝图内容" }
+    ],
+    "offlineOutput": "<tool_call><name>read_blueprint</name><arguments>{\"chapter_number\":4}</arguments></tool_call>",
+    "expect": {
+      "toolCalls": [{ "name": "read_blueprint", "arguments": { "chapter_number": 4 } }],
+      "textParts": []
+    }
+  },
+  {
+    "id": "parse-json-envelope-01",
+    "category": "parse_tolerance",
+    "layer": "offline",
+    "title": "整段响应为 JSON envelope 且工具已注册时按调用处理",
+    "tools": [
+      { "name": "list_chapters", "description": "列出全部章节", "result": "章节列表" }
+    ],
+    "offlineOutput": "{\"name\": \"list_chapters\", \"arguments\": {}}",
+    "expect": {
+      "toolCalls": [{ "name": "list_chapters", "arguments": {} }],
+      "textParts": []
+    }
+  },
+  {
+    "id": "parse-neg-01",
+    "category": "parse_tolerance",
+    "layer": "offline",
+    "title": "标签内 JSON 残缺时整体丢弃，既不执行也不泄漏为散文",
+    "tools": [
+      { "name": "read_blueprint", "description": "读取指定章节的蓝图", "result": "蓝图内容" }
+    ],
+    "offlineOutput": "<tool_call>{\"name\":\"read_blueprint\",\"arguments\":{</tool_call>",
+    "expect": {
+      "toolCalls": [],
+      "textParts": []
+    }
+  },
+  {
+    "id": "parse-neg-02",
+    "category": "parse_tolerance",
+    "layer": "offline",
+    "title": "散文后接 JSON envelope 保持惰性，不注册为命令",
+    "tools": [
+      { "name": "read_blueprint", "description": "读取指定章节的蓝图", "result": "蓝图内容" }
+    ],
+    "offlineOutput": "说明\n\n{\"name\":\"read_blueprint\",\"arguments\":{}}",
+    "expect": {
+      "toolCalls": [],
+      "textParts": ["说明\n\n{\"name\":\"read_blueprint\",\"arguments\":{}}"]
+    }
+  }
+]
